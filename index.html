@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Table Learning Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #b0d6cd 0%, #4f6c71 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .intro-content {
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 40px;
+        }
+
+        .intro-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .fun-fact {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-quiz {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-game {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .atom-animation {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .atom {
+            width: 120px;
+            height: 120px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+            animation: rotate 4s linear infinite;
+        }
+
+        .electron {
+            width: 12px;
+            height: 12px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            position: absolute;
+            animation: orbit 2s linear infinite;
+        }
+
+        .electron:nth-child(1) {
+            top: -6px;
+            left: 50%;
+            margin-left: -6px;
+        }
+
+        .electron:nth-child(2) {
+            bottom: -6px;
+            left: 50%;
+            margin-left: -6px;
+            animation-delay: -1s;
+        }
+
+        .electron:nth-child(3) {
+            top: 50%;
+            left: -6px;
+            margin-top: -6px;
+            animation-delay: -0.5s;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+        }
+
+        .element-preview {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .element-box {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .element-box:hover {
+            transform: scale(1.1);
+        }
+
+        .element-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .element-name {
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Periodic Table</h1>
+        <p class="subtitle">Your Gateway to Understanding the Elements</p>
+        
+        <div class="atom-animation">
+            <div class="atom">
+                <div class="electron"></div>
+                <div class="electron"></div>
+                <div class="electron"></div>
+            </div>
+        </div>
+
+        <div class="intro-content">
+            <p>Selamat datang di dunia kimia yang menarik! Tabel periodik adalah salah satu alat paling penting dalam sains, yang mengatur semua elemen kimia yang diketahui dengan cara yang mengungkapkan pola dasar materi.</p>
+
+            <div class="highlight">
+                <p><strong>Apa itu Table Periodik ?</strong></p>
+                <p>Tabel periodik adalah susunan sistematis unsur-unsur kimia, yang diurutkan berdasarkan nomor atom (jumlah proton). Tabel ini pertama kali dibuat oleh ahli kimia Rusia, Dmitri Mendeleev, pada tahun 1869, dan telah disempurnakan dari waktu ke waktu seiring dengan ditemukannya elemen-elemen baru.</p>
+            </div>
+
+            <p>Setiap unsur dalam tabel periodik memiliki sifat yang unik, tetapi jika disusun dengan benar, kita dapat melihat pola yang menakjubkan! Unsur-unsur dalam kolom yang sama (disebut golongan atau keluarga) memiliki karakteristik yang sama, sementara unsur-unsur dalam baris yang sama (disebut periode) menunjukkan perubahan bertahap dalam sifat-sifatnya.</p>
+
+            <div class="fun-fact">
+                <p><strong>Fun Fact:</strong> Saat ini ada 118 elemen yang diketahui, dari hidrogen (yang paling ringan) hingga oganesson (yang paling berat). Para ilmuwan masih terus bekerja untuk menemukan elemen yang lebih berat lagi!</p>
+            </div>
+
+            <div class="element-preview">
+                <div class="element-box">
+                    <div class="element-symbol">H</div>
+                    <div class="element-name">Hydrogen</div>
+                </div>
+                <div class="element-box">
+                    <div class="element-symbol">He</div>
+                    <div class="element-name">Helium</div>
+                </div>
+                <div class="element-box">
+                    <div class="element-symbol">Li</div>
+                    <div class="element-name">Lithium</div>
+                </div>
+                <div class="element-box">
+                    <div class="element-symbol">C</div>
+                    <div class="element-name">Carbon</div>
+                </div>
+                <div class="element-box">
+                    <div class="element-symbol">O</div>
+                    <div class="element-name">Oxygen</div>
+                </div>
+            </div>
+
+            <p>Memahami tabel periodik membuka cara berpikir yang sama sekali baru tentang dunia di sekitar kita. Dari oksigen yang kita hirup hingga emas dalam perhiasan, dari silikon dalam chip komputer hingga kalsium dalam tulang kita - semuanya terbuat dari blok-blok pembangun yang mendasar ini!</p>
+
+            <p>Siap untuk menjelajah? Uji pengetahuan Anda dengan kuis interaktif kami, atau selami permainan seru kami untuk mempelajari berbagai elemen dengan cara yang menarik!</p>
+        </div>
+
+        <div class="buttons-container">
+            <a href="quiz.html" class="btn btn-game">Start Quiz</a>
+            <a href="game.html" class="btn btn-game">🎮 Play Game</a>
+        </div>
+    </div>
+</body>
+</html>

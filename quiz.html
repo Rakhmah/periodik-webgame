@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Table Quiz Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #b0d6cd 0%, #4f6c71 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #775baa, #cab0e8, #4ecdc4, #45b7d1);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3436;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #775baa, #cab0e8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #636e72;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #44a08d);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 20px;
+        }
+
+        .question-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #775baa, #cab0e8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            color: #2d3436;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            padding: 20px;
+            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            border-color: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+        }
+
+        .option-letter {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            border-color: #00b894;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #e17055, #d63031);
+            color: white;
+            border-color: #d63031;
+            animation: shake 0.5s ease;
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #e17055, #d63031);
+            color: white;
+        }
+
+        .next-button {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .next-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .results-container {
+            display: none;
+            text-align: center;
+            animation: bounceIn 0.8s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-message {
+            font-size: 1.5em;
+            color: #2d3436;
+            margin-bottom: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-restart {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+        }
+
+        .btn-home {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti 3s ease-in-out infinite;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>🧪 Periodic Table Quiz Challenge</h1>
+        <p class="subtitle">Test your knowledge of the elements!</p>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+        
+        <div class="score-display">
+            Score: <span id="currentScore">0</span> / <span id="totalQuestions">10</span>
+        </div>
+
+        <div id="questionContainer" class="question-container active">
+            <div class="question-number" id="questionNumber">Question 1 of 10</div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options-container" id="optionsContainer"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="next-button" id="nextButton">Next Question →</button>
+        </div>
+
+        <div id="resultsContainer" class="results-container">
+            <div class="final-score" id="finalScore"></div>
+            <div class="score-message" id="scoreMessage"></div>
+            <div class="action-buttons">
+                <button class="btn btn-restart" onclick="restartQuiz()">🔄 Try Again</button>
+                <a href="index.html" class="btn btn-home">🏠 Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        const questions = [
+            {
+                question: "Simbol kimia dari emas adalah?",
+                options: ["Go", "Gd", "Au", "Ag"],
+                correct: 2,
+                explanation: "Simbol emas ‘Au’ berasal dari nama Latinnya ‘aurum’!"
+            },
+            {
+                question: "Unsur mana yang memiliki nomor atom 1??",
+                options: ["Helium", "Hydrogen", "Lithium", "Carbon"],
+                correct: 1,
+                explanation: "Hidrogen adalah unsur pertama dan teringan dengan hanya satu proton!"
+            },
+            {
+                question: "What is the most abundant gas in Earth's atmosphere?",
+                options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"],
+                correct: 2,
+                explanation: "Nitrogen menyusun sekitar 78% atmosfer kita!"
+            },
+            {
+                question: "Unsur apa yang esensial untuk semua senyawa organik?",
+                options: ["Carbon", "Oxygen", "Nitrogen", "Hydrogen"],
+                correct: 0,
+                explanation: "Karbon merupakan tulang punggung dari semua molekul organik!"
+            },
+            {
+                question: "Apa simbol kimia untuk Besi?",
+                options: ["Ir", "Fe", "In", "Fr"],
+                correct: 1,
+                explanation: "Simbol besi ‘Fe’ berasal dari nama Latinnya ‘ferrum’!"
+            },
+            {
+                question: "Unsur mana yang termasuk gas mulia?",
+                options: ["Chlorine", "Sodium", "Neon", "Magnesium"],
+                correct: 2,
+                explanation: "Neon adalah gas mulia yang bercahaya saat arus listrik melewatinya!"
+            },
+            {
+                question: "Apa bahan alami terkeras di Bumi?",
+                options: ["Gold", "Iron", "Diamond", "Platinum"],
+                correct: 2,
+                explanation: "Diamond terbuat dari atom karbon yang tersusun dalam struktur kristal yang sangat kuat!"
+            },
+            {
+                question: "Unsur mana yang berbentuk cair pada suhu kamar?",
+                options: ["Mercury", "Lead", "Silver", "Copper"],
+                correct: 0,
+                explanation: "Mercury adalah satu-satunya logam yang berbentuk cair pada suhu kamar!"
+            },
+            {
+                question: "Unsur apa yang membentuk sebagian besar Matahari?",
+                options: ["Helium", "Hydrogen", "Oxygen", "Carbon"],
+                correct: 1,
+                explanation: "Matahari terdiri dari sekitar 73% hidrogen, yang menjadi sumber tenaga fusi nuklirnya!"
+            },
+            {
+                question: "Unsur apa yang penting untuk tulang dan gigi yang kuat?",
+                options: ["Iron", "Calcium", "Potassium", "Sodium"],
+                correct: 1,
+                explanation: "Kalsium memberikan kekuatan pada tulang dan gigi - itulah mengapa susu sangat penting!"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `
+                    <div class="option-letter">${String.fromCharCode(65 + index)}</div>
+                    <div>${option}</div>
+                `;
+                optionDiv.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextButton').style.display = 'none';
+            answered = false;
+            
+            updateProgress();
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            const feedback = document.getElementById('feedback');
+            if (selectedIndex === question.correct) {
+                score++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `<strong>🎉 Correct!</strong><br>${question.explanation}`;
+                document.getElementById('currentScore').textContent = score;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<strong>❌ Incorrect.</strong><br>${question.explanation}`;
+            }
+            
+            feedback.style.display = 'block';
+            document.getElementById('nextButton').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = "🏆 Outstanding! You're a periodic table master!";
+                createCelebration();
+            } else if (percentage >= 70) {
+                message = "🌟 Great job! You know your elements well!";
+            } else if (percentage >= 50) {
+                message = "👍 Good effort! Keep studying to improve!";
+            } else {
+                message = "📚 Keep learning! The periodic table has many secrets to discover!";
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function createCelebration() {
+            const celebration = document.getElementById('celebration');
+            const colors = ['#ff6b6b', '#ffa500', '#4ecdc4', '#45b7d1', '#a8e6cf'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                celebration.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            document.getElementById('currentScore').textContent = '0';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'block';
+            loadQuestion();
+        }
+
+        document.getElementById('nextButton').onclick = nextQuestion;
+
+        loadQuestion();
+    </script>
+</body>
+</html>

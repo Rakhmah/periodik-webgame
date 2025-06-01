@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Table Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #b0d6cd 0%, #4f6c71 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-panel {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        select, button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select {
+            background: white;
+            color: #333;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .question-panel {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .feedback {
+            font-size: 1.1rem;
+            font-weight: bold;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            gap: 2px;
+            background: rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .element {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(145deg, #a8edea, #fed6e3);
+            color: #333;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.7rem;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .element:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        
+        .element.correct {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            animation: pulse 0.6s ease-in-out;
+        }
+        
+        .element.incorrect {
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+            color: white;
+            animation: shake 0.6s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .atomic-number {
+            font-size: 0.6rem;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+        }
+        
+        .symbol {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .name {
+            font-size: 0.5rem;
+            opacity: 0.8;
+        }
+        
+        .empty {
+            background: transparent;
+            cursor: default;
+        }
+        
+        .empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .game-over {
+            background: rgba(0,0,0,0.8);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .game-over-content {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .final-score {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: #ffeb3b;
+        }
+        
+        @media (max-width: 768px) {
+            .periodic-table {
+                gap: 1px;
+            }
+            .element {
+                font-size: 0.5rem;
+            }
+            .symbol {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🧪 Periodic Table Challenge</h1>
+            <p>Learn the periodic Table by finding elements based on clues1</p>
+            <p>! YOU CAN DO IT !</p>
+        </div>
+        
+        <div class="game-controls">
+            <div class="info-panel">
+                <div class="stat">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="timer">60</div>
+                    <div class="stat-label">Time</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <button id="startBtn" onclick="startGame()">Start Game</button>
+            </div>
+        </div>
+        
+        <div class="question-panel">
+            <div class="question" id="question">Click "Start Game" to begin!</div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="periodic-table" id="periodicTable"></div>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>🎉 Game Over!</h2>
+            <div class="final-score" id="finalScore">0</div>
+            <p>Great job learning the periodic table!</p>
+            <button onclick="hideGameOver()" style="margin-top: 20px;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Simplified element data (excluding f-block and artificial elements)
+        const elements = [
+            {symbol: 'H', name: 'Hydrogen', number: 1, group: 1, period: 1, pos: 0},
+            {symbol: 'He', name: 'Helium', number: 2, group: 18, period: 1, pos: 17},
+            
+            {symbol: 'Li', name: 'Lithium', number: 3, group: 1, period: 2, pos: 18},
+            {symbol: 'Be', name: 'Beryllium', number: 4, group: 2, period: 2, pos: 19},
+            {symbol: 'B', name: 'Boron', number: 5, group: 13, period: 2, pos: 30},
+            {symbol: 'C', name: 'Carbon', number: 6, group: 14, period: 2, pos: 31},
+            {symbol: 'N', name: 'Nitrogen', number: 7, group: 15, period: 2, pos: 32},
+            {symbol: 'O', name: 'Oxygen', number: 8, group: 16, period: 2, pos: 33},
+            {symbol: 'F', name: 'Fluorine', number: 9, group: 17, period: 2, pos: 34},
+            {symbol: 'Ne', name: 'Neon', number: 10, group: 18, period: 2, pos: 35},
+            
+            {symbol: 'Na', name: 'Sodium', number: 11, group: 1, period: 3, pos: 36},
+            {symbol: 'Mg', name: 'Magnesium', number: 12, group: 2, period: 3, pos: 37},
+            {symbol: 'Al', name: 'Aluminum', number: 13, group: 13, period: 3, pos: 48},
+            {symbol: 'Si', name: 'Silicon', number: 14, group: 14, period: 3, pos: 49},
+            {symbol: 'P', name: 'Phosphorus', number: 15, group: 15, period: 3, pos: 50},
+            {symbol: 'S', name: 'Sulfur', number: 16, group: 16, period: 3, pos: 51},
+            {symbol: 'Cl', name: 'Chlorine', number: 17, group: 17, period: 3, pos: 52},
+            {symbol: 'Ar', name: 'Argon', number: 18, group: 18, period: 3, pos: 53},
+            
+            {symbol: 'K', name: 'Potassium', number: 19, group: 1, period: 4, pos: 54},
+            {symbol: 'Ca', name: 'Calcium', number: 20, group: 2, period: 4, pos: 55},
+            {symbol: 'Sc', name: 'Scandium', number: 21, group: 3, period: 4, pos: 56},
+            {symbol: 'Ti', name: 'Titanium', number: 22, group: 4, period: 4, pos: 57},
+            {symbol: 'V', name: 'Vanadium', number: 23, group: 5, period: 4, pos: 58},
+            {symbol: 'Cr', name: 'Chromium', number: 24, group: 6, period: 4, pos: 59},
+            {symbol: 'Mn', name: 'Manganese', number: 25, group: 7, period: 4, pos: 60},
+            {symbol: 'Fe', name: 'Iron', number: 26, group: 8, period: 4, pos: 61},
+            {symbol: 'Co', name: 'Cobalt', number: 27, group: 9, period: 4, pos: 62},
+            {symbol: 'Ni', name: 'Nickel', number: 28, group: 10, period: 4, pos: 63},
+            {symbol: 'Cu', name: 'Copper', number: 29, group: 11, period: 4, pos: 64},
+            {symbol: 'Zn', name: 'Zinc', number: 30, group: 12, period: 4, pos: 65},
+            {symbol: 'Ga', name: 'Gallium', number: 31, group: 13, period: 4, pos: 66},
+            {symbol: 'Ge', name: 'Germanium', number: 32, group: 14, period: 4, pos: 67},
+            {symbol: 'As', name: 'Arsenic', number: 33, group: 15, period: 4, pos: 68},
+            {symbol: 'Se', name: 'Selenium', number: 34, group: 16, period: 4, pos: 69},
+            {symbol: 'Br', name: 'Bromine', number: 35, group: 17, period: 4, pos: 70},
+            {symbol: 'Kr', name: 'Krypton', number: 36, group: 18, period: 4, pos: 71},
+            
+            {symbol: 'Rb', name: 'Rubidium', number: 37, group: 1, period: 5, pos: 72},
+            {symbol: 'Sr', name: 'Strontium', number: 38, group: 2, period: 5, pos: 73},
+            {symbol: 'Y', name: 'Yttrium', number: 39, group: 3, period: 5, pos: 74},
+            {symbol: 'Zr', name: 'Zirconium', number: 40, group: 4, period: 5, pos: 75},
+            {symbol: 'Nb', name: 'Niobium', number: 41, group: 5, period: 5, pos: 76},
+            {symbol: 'Mo', name: 'Molybdenum', number: 42, group: 6, period: 5, pos: 77},
+            {symbol: 'Tc', name: 'Technetium', number: 43, group: 7, period: 5, pos: 78},
+            {symbol: 'Ru', name: 'Ruthenium', number: 44, group: 8, period: 5, pos: 79},
+            {symbol: 'Rh', name: 'Rhodium', number: 45, group: 9, period: 5, pos: 80},
+            {symbol: 'Pd', name: 'Palladium', number: 46, group: 10, period: 5, pos: 81},
+            {symbol: 'Ag', name: 'Silver', number: 47, group: 11, period: 5, pos: 82},
+            {symbol: 'Cd', name: 'Cadmium', number: 48, group: 12, period: 5, pos: 83},
+            {symbol: 'In', name: 'Indium', number: 49, group: 13, period: 5, pos: 84},
+            {symbol: 'Sn', name: 'Tin', number: 50, group: 14, period: 5, pos: 85},
+            {symbol: 'Sb', name: 'Antimony', number: 51, group: 15, period: 5, pos: 86},
+            {symbol: 'Te', name: 'Tellurium', number: 52, group: 16, period: 5, pos: 87},
+            {symbol: 'I', name: 'Iodine', number: 53, group: 17, period: 5, pos: 88},
+            {symbol: 'Xe', name: 'Xenon', number: 54, group: 18, period: 5, pos: 89},
+            
+            {symbol: 'Cs', name: 'Cesium', number: 55, group: 1, period: 6, pos: 90},
+            {symbol: 'Ba', name: 'Barium', number: 56, group: 2, period: 6, pos: 91},
+            {symbol: 'Hf', name: 'Hafnium', number: 72, group: 4, period: 6, pos: 93},
+            {symbol: 'Ta', name: 'Tantalium', number: 73, group: 5, period: 6, pos: 94},
+            {symbol: 'W', name: 'Tungsten', number: 74, group: 6, period: 6, pos: 95},
+            {symbol: 'Re', name: 'Rhenium', number: 75, group: 7, period: 6, pos: 96},
+            {symbol: 'Os', name: 'Osmium', number: 76, group: 8, period: 6, pos: 97},
+            {symbol: 'Ir', name: 'Iridium', number: 77, group: 9, period: 6, pos: 98},
+            {symbol: 'Pt', name: 'Platinum', number: 78, group: 10, period: 6, pos: 99},
+            {symbol: 'Au', name: 'Gold', number: 79, group: 11, period: 6, pos: 100},
+            {symbol: 'Hg', name: 'Mercury', number: 80, group: 12, period: 6, pos: 101},
+            {symbol: 'Tl', name: 'Thallium', number: 81, group: 13, period: 6, pos: 102},
+            {symbol: 'Pb', name: 'Lead', number: 82, group: 14, period: 6, pos: 103},
+            {symbol: 'Bi', name: 'Bismuth', number: 83, group: 15, period: 6, pos: 104}
+        ];
+        
+        let gameState = {
+            score: 0,
+            timeLeft: 60,
+            currentElement: null,
+            gameActive: false,
+            streak: 0,
+            timer: null
+        };
+        
+        function createPeriodicTable() {
+            const table = document.getElementById('periodicTable');
+            table.innerHTML = '';
+            
+            // Create 126 grid positions (7 rows × 18 columns)
+            for (let i = 0; i < 126; i++) {
+                const element = elements.find(el => el.pos === i);
+                const div = document.createElement('div');
+                
+                if (element) {
+                    div.className = 'element';
+                    div.innerHTML = `
+                        <div class="atomic-number">${element.number}</div>
+                        <div class="symbol">${element.symbol}</div>
+                        <div class="name">${element.name}</div>
+                    `;
+                    div.onclick = () => checkAnswer(element);
+                } else {
+                    div.className = 'element empty';
+                }
+                
+                table.appendChild(div);
+            }
+        }
+        
+        function generateQuestion() {
+            const difficulty = document.getElementById('difficulty').value;
+            const element = elements[Math.floor(Math.random() * elements.length)];
+            gameState.currentElement = element;
+            
+            let question;
+            switch (difficulty) {
+                case 'easy':
+                    question = `Click on ${element.name}`;
+                    break;
+                case 'medium':
+                    const options = [
+                        `Click on the element in group ${element.group}`,
+                        `Click on the element in period ${element.period}`,
+                        `Click on element number ${element.number}`
+                    ];
+                    question = options[Math.floor(Math.random() * options.length)];
+                    break;
+                case 'hard':
+                    question = `Click on the element with atomic number ${element.number} in group ${element.group}`;
+                    break;
+            }
+            
+            document.getElementById('question').textContent = question;
+            document.getElementById('feedback').textContent = '';
+        }
+        
+        function checkAnswer(clickedElement) {
+            if (!gameState.gameActive) return;
+            
+            const elements = document.getElementsByClassName('element');
+            for (let el of elements) {
+                el.classList.remove('correct', 'incorrect');
+            }
+            
+            if (clickedElement.symbol === gameState.currentElement.symbol) {
+                gameState.score += 10;
+                gameState.streak++;
+                document.getElementById('score').textContent = gameState.score;
+                document.getElementById('streak').textContent = gameState.streak;
+                document.getElementById('feedback').textContent = '🎉 Correct!';
+                
+                // Find and highlight correct element
+                const correctEl = Array.from(elements).find(el => 
+                    el.querySelector('.symbol')?.textContent === clickedElement.symbol
+                );
+                if (correctEl) correctEl.classList.add('correct');
+                
+                setTimeout(generateQuestion, 1000);
+            } else {
+                gameState.streak = 0;
+                document.getElementById('streak').textContent = gameState.streak;
+                document.getElementById('feedback').textContent = '❌ Try again!';
+                
+                // Find and highlight incorrect element
+                const incorrectEl = Array.from(elements).find(el => 
+                    el.querySelector('.symbol')?.textContent === clickedElement.symbol
+                );
+                if (incorrectEl) incorrectEl.classList.add('incorrect');
+            }
+        }
+        
+        function startGame() {
+            gameState = {
+                score: 0,
+                timeLeft: 60,
+                currentElement: null,
+                gameActive: true,
+                streak: 0,
+                timer: null
+            };
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('streak').textContent = '0';
+            document.getElementById('startBtn').textContent = 'Playing...';
+            document.getElementById('startBtn').disabled = true;
+            
+            generateQuestion();
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById('timer').textContent = gameState.timeLeft;
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        function endGame() {
+            gameState.gameActive = false;
+            clearInterval(gameState.timer);
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('gameOver').style.display = 'flex';
+            
+            document.getElementById('startBtn').textContent = 'Start Game';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('timer').textContent = '60';
+        }
+        
+        function hideGameOver() {
+            document.getElementById('gameOver').style.display = 'none';
+        }
+        
+        // Initialize the game
+        createPeriodicTable();
+    </script>
+</body>
+</html>
